@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "es2020",
+    "esModuleInterop": true,
+    "target": "es2020",
+    "moduleResolution": "node",
+    "strict": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "files": [
+    "./src/main.ts"
+  ]
+}
