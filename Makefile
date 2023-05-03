@@ -1,4 +1,4 @@
 build:
-	docker build -t my-telegram-bot .
+	docker build -t gpt-bot .
 run:
-	docker run -d --name my-telegram-bot-container my-telegram-bot
+	docker run -d --name gpt-bot-container gpt-bot
