@@ -25,7 +25,9 @@ bot.command('new', async (context) => {
 
 bot.command('start', async (context) => {
   context.session = {messages: []};
-  await context.reply(code('Новая сессия. Жду ваше голосовое или текстовое сообщение'));
+  await context.reply(
+    code('Новая сессия. Жду ваше голосовое или текстовое сообщение. Для очищения сессии используйте команду /new')
+  );
 });
 
 bot.on('voice', async (context) => {
