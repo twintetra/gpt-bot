@@ -20,26 +20,26 @@ bot.use(session());
 
 bot.command('new', async (context) => {
   context.session = {messages: []};
-  await context.reply(code('Сессия очищена. Жду ваше голосовое или текстовое сообщение'));
+  await context.reply(code('The session has been cleared. I am waiting for your voice or text message.'));
 });
 
 bot.command('start', async (context) => {
   context.session = {messages: []};
   await context.reply(
-    code('Новая сессия. Жду ваше голосовое или текстовое сообщение. Для очищения сессии используйте команду /new')
+    code('New session. Waiting for your voice or text message. Use the command /new to clear the session.')
   );
 });
 
 bot.on('voice', async (context) => {
   context.session ??= {messages: []};
   try {
-    await context.reply(code('Сообщение принял. Жду ответ...'));
+    await context.reply(code('Message received. Waiting for a response...'));
     const link = await context.telegram.getFileLink(context.message.voice.file_id);
     const userId = String(context.message.from.id);
     const oggPath = await oggConverter.create(link.href, userId);
     const mp3Path = await oggConverter.toMp3(oggPath, userId);
     const text = await openai.transcription(mp3Path);
-    await context.reply(code(`Ваш запрос: ${text}`));
+    await context.reply(code(`Your request: ${text}`));
     context.session.messages.push({role: ChatCompletionRoleEnum.USER, content: text});
     const response = await openai.chat(context.session.messages);
     context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
@@ -52,7 +52,7 @@ bot.on('voice', async (context) => {
 bot.on('text', async (context) => {
   context.session ??= {messages: []};
   try {
-    await context.reply(code('Сообщение принял. Жду ответ...'));
+    await context.reply(code('Message received. Waiting for a response...'));
     context.session.messages.push({role: ChatCompletionRoleEnum.USER, content: context.message.text});
     const response = await openai.chat(context.session.messages);
     context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
