@@ -30,7 +30,7 @@ class OpenAI implements IOpenAi {
       });
       return response.data.choices[0].message as ChatCompletionResponseMessage;
     } catch (e) {
-      console.error('Error gpt chat: ', e);
+      console.log('Error gpt chat: ', e);
       throw e;
     }
   }
@@ -42,7 +42,7 @@ class OpenAI implements IOpenAi {
       const response = await this.openai.createTranscription(createReadStream(filePath), 'whisper-1');
       return response.data.text;
     } catch (e) {
-      console.error('Error transcription: ', e);
+      console.log('Error transcription: ', e);
       throw e;
     }
   }

@@ -28,7 +28,7 @@ class OggConverter implements IOggConverter {
         stream.on('finish', () => resolve(oggPath));
       });
     } catch (e) {
-      console.error('Error create: ', e);
+      console.log('Error create: ', e);
       throw e;
     }
   }
@@ -48,7 +48,7 @@ class OggConverter implements IOggConverter {
           .run();
       });
     } catch (e) {
-      console.error('Error convert to mp3: ', e);
+      console.log('Error convert to mp3: ', e);
       throw e;
     }
   }

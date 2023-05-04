@@ -19,18 +19,34 @@ const bot = new Telegraf<IBotContext>(config.get('TELEGRAM_TOKEN'));
 bot.use(session());
 
 bot.command('new', async (context) => {
+  if (context.message.from.id !== config.get('ADMIN_ID')) {
+    await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
+    return;
+  }
   context.session = {messages: []};
   await context.reply(code('The session has been cleared. I am waiting for your voice or text message.'));
 });
 
 bot.command('start', async (context) => {
+  if (context.message.from.id !== config.get('ADMIN_ID')) {
+    await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
+    return;
+  }
   context.session = {messages: []};
   await context.reply(
     code('New session. Waiting for your voice or text message. Use the command /new to clear the session.')
   );
 });
 
+bot.command('id', async (context) => {
+  await context.reply(`Your telegram ID: ${context.message.from.id}`);
+});
+
 bot.on('voice', async (context) => {
+  if (context.message.from.id !== config.get('ADMIN_ID')) {
+    await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
+    return;
+  }
   context.session ??= {messages: []};
   try {
     await context.reply(code('Message received. Waiting for a response...'));
@@ -45,11 +61,15 @@ bot.on('voice', async (context) => {
     context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
     await context.reply(response.content);
   } catch (e) {
-    console.error('Voice error: ', e);
+    console.log('Voice error: ', e);
   }
 });
 
 bot.on('text', async (context) => {
+  if (context.message.from.id !== config.get('ADMIN_ID')) {
+    await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
+    return;
+  }
   context.session ??= {messages: []};
   try {
     await context.reply(code('Message received. Waiting for a response...'));
@@ -58,7 +78,7 @@ bot.on('text', async (context) => {
     context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
     await context.reply(response.content);
   } catch (e) {
-    console.error('Text error: ', e);
+    console.log('Text error: ', e);
   }
 });
 
