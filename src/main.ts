@@ -3,6 +3,7 @@ import {code} from 'telegraf/format';
 import config from 'config';
 import {oggConverter} from './ogg';
 import {ChatCompletionRoleEnum, openai} from './openai';
+import {validID} from './utils';
 
 interface IMessages {
   role: ChatCompletionRoleEnum;
@@ -19,7 +20,7 @@ const bot = new Telegraf<IBotContext>(config.get('TELEGRAM_TOKEN'));
 bot.use(session());
 
 bot.command('new', async (context) => {
-  if (context.message.from.id !== config.get('ADMIN_ID')) {
+  if (validID(context.message.from.id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
@@ -28,7 +29,7 @@ bot.command('new', async (context) => {
 });
 
 bot.command('start', async (context) => {
-  if (context.message.from.id !== config.get('ADMIN_ID')) {
+  if (validID(context.message.from.id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
@@ -43,7 +44,7 @@ bot.command('id', async (context) => {
 });
 
 bot.on('voice', async (context) => {
-  if (context.message.from.id !== config.get('ADMIN_ID')) {
+  if (validID(context.message.from.id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
@@ -66,7 +67,7 @@ bot.on('voice', async (context) => {
 });
 
 bot.on('text', async (context) => {
-  if (context.message.from.id !== config.get('ADMIN_ID')) {
+  if (validID(context.message.from.id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
