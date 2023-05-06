@@ -29,7 +29,6 @@ bot.command('new', async (context) => {
   }
   context.session = {[id]: {messages: []}};
   await context.reply(code('The session has been cleared. I am waiting for your voice or text message.'));
-  await context.reply(JSON.stringify(context.session, null, 2));
 });
 
 bot.command('start', async (context) => {
@@ -85,7 +84,6 @@ bot.on('text', async (context) => {
     const response = await openai.chat(context.session[id].messages);
     context.session[id].messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
     await context.reply(response.content);
-    await context.reply(JSON.stringify(context.session, null, 2));
   } catch (e) {
     console.log('Text error: ', e);
   }
