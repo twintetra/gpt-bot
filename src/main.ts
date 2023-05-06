@@ -12,7 +12,9 @@ interface IMessages {
 
 interface IBotContext extends Context {
   session: {
-    messages: IMessages[];
+    [key: string]: {
+      messages: IMessages[];
+    };
   };
 }
 
@@ -20,20 +22,23 @@ const bot = new Telegraf<IBotContext>(config.get('TELEGRAM_TOKEN'));
 bot.use(session());
 
 bot.command('new', async (context) => {
-  if (validID(context.message.from.id)) {
+  const id = context.message.from.id;
+  if (validID(id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
-  context.session = {messages: []};
+  context.session = {[id]: {messages: []}};
   await context.reply(code('The session has been cleared. I am waiting for your voice or text message.'));
+  await context.reply(JSON.stringify(context.session, null, 2));
 });
 
 bot.command('start', async (context) => {
-  if (validID(context.message.from.id)) {
+  const id = context.message.from.id;
+  if (validID(id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
-  context.session = {messages: []};
+  context.session = {[id]: {messages: []}};
   await context.reply(
     code('New session. Waiting for your voice or text message. Use the command /new to clear the session.')
   );
@@ -44,11 +49,12 @@ bot.command('id', async (context) => {
 });
 
 bot.on('voice', async (context) => {
-  if (validID(context.message.from.id)) {
+  const id = context.message.from.id;
+  if (validID(id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
-  context.session ??= {messages: []};
+  context.session = {[id]: {messages: []}};
   try {
     await context.reply(code('Message received. Waiting for a response...'));
     const link = await context.telegram.getFileLink(context.message.voice.file_id);
@@ -57,9 +63,9 @@ bot.on('voice', async (context) => {
     const mp3Path = await oggConverter.toMp3(oggPath, userId);
     const text = await openai.transcription(mp3Path);
     await context.reply(code(`Your request: ${text}`));
-    context.session.messages.push({role: ChatCompletionRoleEnum.USER, content: text});
-    const response = await openai.chat(context.session.messages);
-    context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
+    context.session[id].messages.push({role: ChatCompletionRoleEnum.USER, content: text});
+    const response = await openai.chat(context.session[id].messages);
+    context.session[id].messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
     await context.reply(response.content);
   } catch (e) {
     console.log('Voice error: ', e);
@@ -67,17 +73,19 @@ bot.on('voice', async (context) => {
 });
 
 bot.on('text', async (context) => {
+  const id = context.message.from.id;
   if (validID(context.message.from.id)) {
     await context.reply(code('Your ID was not found in the database. Please contact the admin.'));
     return;
   }
-  context.session ??= {messages: []};
+  context.session ??= {[id]: {messages: []}};
   try {
     await context.reply(code('Message received. Waiting for a response...'));
-    context.session.messages.push({role: ChatCompletionRoleEnum.USER, content: context.message.text});
-    const response = await openai.chat(context.session.messages);
-    context.session.messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
+    context.session[id].messages.push({role: ChatCompletionRoleEnum.USER, content: context.message.text});
+    const response = await openai.chat(context.session[id].messages);
+    context.session[id].messages.push({role: ChatCompletionRoleEnum.ASSISTANT, content: response.content});
     await context.reply(response.content);
+    await context.reply(JSON.stringify(context.session, null, 2));
   } catch (e) {
     console.log('Text error: ', e);
   }
